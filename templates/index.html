@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}Registrera kund{% endblock %}
+
+{% block content %}
+
+    <div class="form-container">
+        <h1>Registrera ny kund</h1>
+        <form action="/add" method="post">
+            <input type="text" name="name" placeholder="Företagsnamn" required>
+            <input type="text" name="phone" placeholder="Telefon">
+            <input type="text" name="car_model" placeholder="Bilmodell">
+            <input type="text" name="license_plate" placeholder="Registreringsnummer" required>
+            <input type="text" name="service" placeholder="Tjänst" required>
+            <input type="text" name="price" placeholder="Pris">
+            <button type="submit">Spara</button>
+        </form>
+        
+    </div>
+    <div class="top-links">
+    <a href="/jobs">📋 Registrerade</a>
+    <a href="/archived">📦 Arkiverade</a>
+</div>
+
+{% endblock %}

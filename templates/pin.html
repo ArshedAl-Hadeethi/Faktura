@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bekräfta ändring</title>
+</head>
+<body>
+    <h2>Ange kod för att ändra status</h2>
+    {% if error %}
+        <p style="color:red;">{{ error }}</p>
+    {% endif %}
+    <form method="post">
+        <input type="password" name="pin" placeholder="PIN-kod" required>
+        <button type="submit">Bekräfta</button>
+    </form>
+    <a href="/jobs">Avbryt</a>
+</body>
+</html>

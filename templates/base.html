@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}Min App{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- Logotyp med länk -->
+    <header class="top-header">
+        <a href="/">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logotyp" class="logo">
+        </a>
+    </header>
+
+    <!-- Huvudinnehåll -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

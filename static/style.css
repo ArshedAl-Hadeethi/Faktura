@@ -1,0 +1,224 @@
+/* === Basinställningar === */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 20px;
+}
+
+/* === Logotyp och header === */
+.top-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 5px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.logo {
+    width: 80px;
+    height: auto;
+}
+
+/* === Formulär === */
+.form-container {
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 340px;
+    text-align: center;
+}
+
+input, button {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+button {
+    background-color: #2cac6a;
+    color: white;
+    border: none;
+    border-radius: 9px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    font-size: 14px;
+}
+
+button:hover {
+    background-color: #025424;
+}
+
+h1 {
+    margin-bottom: 10px;
+    font-size: 20px;
+}
+
+/* === Container för t.ex. tabeller === */
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 5px auto;
+    padding: 10px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* === Tabellinställningar === */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    font-size: 14px;
+}
+
+th, td {
+    padding: 4px;
+    text-align: left;
+    border-bottom: 1px solid #3600a1;
+}
+
+th {
+    background-color: #f7f7f7;
+}
+
+tr:hover {
+    background-color: #f0efef;
+}
+
+.fakturerad {
+    background-color: #d9fdd3;
+}
+
+td {
+    vertical-align: middle;
+}
+
+/* === Sökformulär & filter === */
+.search-form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.search-form input[type="text"] {
+    flex: 1;
+}
+
+/* === Flash-meddelanden === */
+.flash {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 12px 20px;
+    border: 1px solid #c3e6cb;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    font-weight: bold;
+    transition: opacity 0.5s ease;
+}
+
+/* === Knappar och länkar === */
+.link, .btn-pdf, .top-links a {
+    display: inline-block;
+    padding: 10px 16px;
+    border-radius: 9px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    color: white;
+}
+
+.link {
+    margin-top: 10px;
+    background-color: #3498db;
+    font-size: 16px;
+}
+
+.link:hover {
+    background-color: #2313b7;
+}
+
+.btn-pdf {
+    background-color: #4a90e2;
+    margin-bottom: 5px;
+}
+
+.btn-pdf:hover {
+    background-color: #2313b7;
+}
+
+.top-links {
+    position: absolute;
+    top: 200px;
+    left: 200px;
+    background-color: white;
+    border-radius: 10px;
+    padding: 30px 40px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+}
+
+.top-links a {
+    background-color: #00a81f;
+}
+
+.top-links a:hover {
+    background-color: #005d14;
+}
+
+/* === Action-knapp i tabell === */
+.action-btn {
+    background-color: #008CBA;
+    color: white;
+    border: none;
+    padding: 12px 6px;
+    border-radius: 9px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.action-btn:hover {
+    background-color: #0000a1;
+}
+
+/* === Mobilanpassning === */
+@media (max-width: 600px) {
+    .container {
+        padding: 10px;
+        margin: 20px;
+    }
+
+    table, th, td {
+        font-size: 12px;
+    }
+
+    .form-container {
+        padding: 20px;
+    }
+}
+
+.print-btn-wrapper {
+    display: flex;
+    justify-content: flex-end;
+}
