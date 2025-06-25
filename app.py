@@ -147,6 +147,25 @@ def generate_job_list_pdf():
     buffer.seek(0)
     return send_file(buffer, as_attachment=True, download_name="jobb_lista.pdf", mimetype='application/pdf')
 
+@app.route('/update/<int:job_id>', methods=['POST'])
+def update_job(job_id):
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("""
+        UPDATE jobs SET customer_name=%s, phone=%s, car_model=%s, license_plate=%s,
+                        service=%s, price=%s WHERE id=%s
+    """, (
+        request.form['customer_name'], request.form['phone'], request.form['car_model'],
+        request.form['license_plate'], request.form['service'], request.form['price'],
+        job_id
+    ))
+    conn.commit()
+    cur.close()
+    conn.close()
+    flash("Jobbet har uppdaterats.")
+    return redirect('/jobs')
+
+
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
