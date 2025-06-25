@@ -1,49 +1,23 @@
-from flask import Flask, render_template, request, redirect, send_file, make_response
-import sqlite3
+from flask import Flask, render_template, request, redirect, send_file, flash
+import psycopg2
 from datetime import datetime
-from reportlab.lib.utils import ImageReader
-import os
-from flask import flash, session
-from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
-from io import BytesIO
-from flask import send_file
-from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4
 from reportlab.platypus import Table, TableStyle
-
-ADMIN_PIN = "1234"
-
+from reportlab.lib import colors
+from io import BytesIO
+import os
 
 app = Flask(__name__)
-app.secret_key = 'valfri-hemlig-nyckel'  # måste finnas för att flash ska funka
+app.secret_key = 'valfri-hemlig-nyckel'
 
-# Skapa databasen om den inte finns
-def init_db():
-    conn = sqlite3.connect('database.db')
-    c = conn.cursor()
+# PostgreSQL connection string
+DB_URL = "postgresql://postgres:Carcenter2025@db.jzozwtsrwntarctybqym.supabase.co:5432/postgres"
 
-    # Skapa tabellen om den inte finns
-    c.execute('''CREATE TABLE IF NOT EXISTS jobs (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        customer_name TEXT,
-        phone TEXT,
-        car_model TEXT,
-        license_plate TEXT,
-        service TEXT,
-        price REAL,
-        date TEXT,
-        status TEXT
-    )''')
+# Connect helper
 
-    # Försök lägga till kolumnen "archived" om den inte redan finns
-    try:
-        c.execute("ALTER TABLE jobs ADD COLUMN archived INTEGER DEFAULT 0")
-    except sqlite3.OperationalError:
-        pass  # Kolumnen finns redan
-
-    conn.commit()
-    conn.close()
-
+def get_db():
+    return psycopg2.connect(DB_URL)
 
 @app.route('/')
 def index():
@@ -51,25 +25,22 @@ def index():
 
 @app.route('/add', methods=['POST'])
 def add():
-    name = request.form['name']
-    phone = request.form['phone']
-    car_model = request.form['car_model']
-    license_plate = request.form['license_plate']
-    service = request.form['service']
-    price = request.form['price']
-    date = datetime.now().strftime('%Y-%m-%d %H:%M')
-    status = 'Ej fakturerad'
-
-    conn = sqlite3.connect('database.db')
-    c = conn.cursor()
-    c.execute("INSERT INTO jobs (customer_name, phone, car_model, license_plate, service, price, date, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-              (name, phone, car_model, license_plate, service, price, date, status))
+    data = (
+        request.form['name'], request.form['phone'], request.form['car_model'],
+        request.form['license_plate'], request.form['service'], request.form['price'],
+        datetime.now().strftime('%Y-%m-%d %H:%M'), 'Ej fakturerad'
+    )
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("""
+        INSERT INTO jobs (customer_name, phone, car_model, license_plate, service, price, date, status)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+    """, data)
     conn.commit()
+    cur.close()
     conn.close()
-
-    flash("Registreringen lyckades!")  # ← LÄGG TILL DENNA RAD HÄR
+    flash("Registreringen lyckades!")
     return redirect('/jobs')
-
 
 @app.route('/jobs')
 def jobs():
@@ -77,93 +48,64 @@ def jobs():
     sort_field = request.args.get('sort_field', 'date')
     sort_order = request.args.get('sort', 'desc')
 
-    allowed_fields = {
-        'date': 'date',
-        'name': 'customer_name'
-    }
-    order_by = allowed_fields.get(sort_field, 'date')
+    allowed = {'date': 'date', 'name': 'customer_name'}
+    order_by = allowed.get(sort_field, 'date')
 
-    conn = sqlite3.connect('database.db')
-    c = conn.cursor()
-
+    conn = get_db()
+    cur = conn.cursor()
     if search:
-        c.execute(f"""
+        cur.execute(f"""
             SELECT * FROM jobs
-            WHERE archived = 0 AND (license_plate LIKE ? OR customer_name LIKE ?)
+            WHERE archived = 0 AND (license_plate ILIKE %s OR customer_name ILIKE %s)
             ORDER BY {order_by} {sort_order}
-        """, ('%' + search + '%', '%' + search + '%'))
+        """, (f"%{search}%", f"%{search}%"))
     else:
-        c.execute(f"SELECT * FROM jobs WHERE archived = 0 ORDER BY {order_by} {sort_order}")
-
-    jobs = c.fetchall()
+        cur.execute(f"SELECT * FROM jobs WHERE archived = 0 ORDER BY {order_by} {sort_order}")
+    jobs = cur.fetchall()
+    cur.close()
     conn.close()
     return render_template('jobs.html', jobs=jobs, search=search, sort=sort_order, sort_field=sort_field)
 
-
-
-@app.route('/confirm_status/<int:job_id>', methods=['GET', 'POST'])
-def confirm_status(job_id):
-    if request.method == 'POST':
-        entered_pin = request.form.get('pin')
-        if entered_pin == ADMIN_PIN:
-            # Växla status
-            conn = sqlite3.connect('database.db')
-            c = conn.cursor()
-            c.execute("SELECT status FROM jobs WHERE id = ?", (job_id,))
-            result = c.fetchone()
-            if result:
-                current_status = result[0]
-                new_status = "Ej fakturerad" if current_status == "Fakturerad" else "Fakturerad"
-                c.execute("UPDATE jobs SET status = ? WHERE id = ?", (new_status, job_id))
-                conn.commit()
-            conn.close()
-            return redirect('/jobs')
-        else:
-            return render_template('pin.html', job_id=job_id, error="Fel kod!")
-
-    return render_template('pin.html', job_id=job_id)
-
 @app.route('/delete/<int:job_id>', methods=['POST'])
 def delete(job_id):
-    entered_pin = request.form.get('pin')
-    if entered_pin != ADMIN_PIN:
-        flash("Fel kod – raden flyttades inte.")
+    pin = request.form.get('pin')
+    if pin != "1234":
+        flash("Fel kod")
         return redirect('/jobs')
-
-    conn = sqlite3.connect('database.db')
-    c = conn.cursor()
-    c.execute("UPDATE jobs SET archived = 1 WHERE id = ?", (job_id,))
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("UPDATE jobs SET archived = 1 WHERE id = %s", (job_id,))
     conn.commit()
+    cur.close()
     conn.close()
-
-    flash("Raden har arkiverats.")
+    flash("Raden arkiverades")
     return redirect('/jobs')
 
 @app.route('/archived')
 def archived():
-    conn = sqlite3.connect('database.db')
-    c = conn.cursor()
-    c.execute("SELECT * FROM jobs WHERE archived = 1 ORDER BY date DESC")
-    jobs = c.fetchall()
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM jobs WHERE archived = 1 ORDER BY date DESC")
+    jobs = cur.fetchall()
+    cur.close()
     conn.close()
     return render_template('archived.html', jobs=jobs)
 
 @app.route('/toggle_status/<int:job_id>', methods=['POST'])
 def toggle_status(job_id):
     pin = request.form.get('pin')
-    if pin != "1234":  # byt till din kod
+    if pin != "1234":
         flash("Fel PIN-kod.")
         return redirect('/jobs')
 
-    conn = sqlite3.connect('database.db')
-    c = conn.cursor()
-    c.execute("SELECT status FROM jobs WHERE id = ?", (job_id,))
-    result = c.fetchone()
-    if result:
-        current_status = result[0]
-        new_status = 'Ej fakturerad' if current_status == 'Fakturerad' else 'Fakturerad'
-        c.execute("UPDATE jobs SET status = ? WHERE id = ?", (new_status, job_id))
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("SELECT status FROM jobs WHERE id = %s", (job_id,))
+    status = cur.fetchone()[0]
+    new_status = 'Ej fakturerad' if status == 'Fakturerad' else 'Fakturerad'
+    cur.execute("UPDATE jobs SET status = %s WHERE id = %s", (new_status, job_id))
     conn.commit()
+    cur.close()
     conn.close()
     return redirect('/jobs')
 
@@ -171,57 +113,38 @@ def toggle_status(job_id):
 def generate_job_list_pdf():
     sort_field = request.args.get('sort_field', 'date')
     sort_order = request.args.get('sort', 'desc')
+    order_by = {'date': 'date', 'name': 'customer_name'}.get(sort_field, 'date')
 
-    allowed_fields = {
-        'date': 'date',
-        'name': 'customer_name'
-    }
-    order_by = allowed_fields.get(sort_field, 'date')
-
-    # Hämta data
-    conn = sqlite3.connect('database.db')
-    c = conn.cursor()
-    c.execute(f"SELECT * FROM jobs WHERE archived = 0 ORDER BY {order_by} {sort_order}")
-    jobs = c.fetchall()
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute(f"SELECT * FROM jobs WHERE archived = 0 ORDER BY {order_by} {sort_order}")
+    jobs = cur.fetchall()
+    cur.close()
     conn.close()
 
-    # Skapa PDF
     buffer = BytesIO()
     pdf = canvas.Canvas(buffer, pagesize=A4)
     width, height = A4
+    data = [["Datum", "Kund", "Reg.nr", "Tjänst", "Pris"]] + [
+        [job[7], job[1], job[4], job[5], f"{job[6]} kr" if job[6] else ""] for job in jobs
+    ]
 
-    # Tabellrubrik + data
-    data = [["Datum", "Kund", "Reg.nr", "Tjänst", "Pris"]]
-    for job in jobs:
-        datum = job[7]
-        kund = job[1]
-        reg = job[4]
-        tjänst = job[5]
-        pris = f"{job[6]} kr" if job[6] else ""
-        data.append([datum, kund, reg, tjänst, pris])
-
-    # Rita tabell
-    table = Table(data, colWidths=[100, 100, 100, 120, 80])
-    style = TableStyle([
+    table = Table(data, colWidths=[100]*5)
+    table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
         ('FONTSIZE', (0, 0), (-1, -1), 10),
         ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.white),
         ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
-    ])
-    table.setStyle(style)
+    ]))
     table.wrapOn(pdf, width, height)
     table.drawOn(pdf, 50, height - 100 - len(jobs) * 20)
-
     pdf.save()
     buffer.seek(0)
     return send_file(buffer, as_attachment=True, download_name="jobb_lista.pdf", mimetype='application/pdf')
 
-
 if __name__ == '__main__':
-    init_db()
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
