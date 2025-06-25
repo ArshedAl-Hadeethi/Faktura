@@ -7,12 +7,14 @@ from reportlab.platypus import Table, TableStyle
 from reportlab.lib import colors
 from io import BytesIO
 import os
+DB_URL = os.environ.get("DB_URL")
+
 
 app = Flask(__name__)
 app.secret_key = 'valfri-hemlig-nyckel'
 
 # PostgreSQL connection string
-DB_URL = "postgresql://postgres:Carcenter2025@db.jzozwtsrwntarctybqym.supabase.co:5432/postgres"
+# DB_URL = "postgresql://postgres:Carcenter2025@db.jzozwtsrwntarctybqym.supabase.co:6543/postgres"
 
 # Connect helper
 
