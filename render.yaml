@@ -7,5 +7,5 @@ services:
     envVars:
       - key: PORT
         value: 10000
-      - key: DATABASE_URL
+      - key: DB_URL
         value: postgresql://postgres:Carcenter2025@db.jzozwtsrwntarctybqym.supabase.co:5432/postgres
