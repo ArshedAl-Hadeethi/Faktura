@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: faktura
+    env: python
+    buildCommand: ""
+    startCommand: python app.py
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: DATABASE_URL
+        value: postgresql://postgres:Carcenter2025@db.jzozwtsrwntarctybqym.supabase.co:5432/postgres
