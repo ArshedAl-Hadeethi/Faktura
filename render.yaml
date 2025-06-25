@@ -5,7 +5,7 @@ services:
     buildCommand: ""
     startCommand: python app.py
     envVars:
-  - key: PORT
-    value: "5000"
-  - key: DB_URL
-    value: postgresql://postgres:Carcenter2025@aws-0-eu-north-1.pooler.supabase.com:6543/postgres
+      - key: PORT
+        value: "5000"
+      - key: DB_URL
+        value: postgresql://postgres.jzozwtsrwntarctybqym:Carcenter2025@aws-0-eu-north-1.pooler.supabase.com:6543/postgres
