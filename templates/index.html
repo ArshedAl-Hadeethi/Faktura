@@ -1,25 +1,83 @@
 {% extends 'base.html' %}
 
-{% block title %}Registrera kund{% endblock %}
+{% block title %}Registrera nytt jobb{% endblock %}
 
 {% block content %}
 
-    <div class="form-container">
-        <h1>Registrera ny kund</h1>
-        <form action="/add" method="post">
-            <input type="text" name="name" placeholder="Företagsnamn" required>
-            <input type="text" name="phone" placeholder="Telefon">
-            <input type="text" name="car_model" placeholder="Bilmodell">
-            <input type="text" name="license_plate" placeholder="Registreringsnummer" required>
-            <input type="text" name="service" placeholder="Tjänst" required>
-            <input type="text" name="price" placeholder="Pris">
-            <button type="submit">Spara</button>
-        </form>
-        
-    </div>
-    <div class="top-links">
-    <a href="/jobs">📋 Registrerade</a>
-    <a href="/archived">📦 Arkiverade</a>
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div class="flash">{{ messages[0] }}</div>
+  {% endif %}
+{% endwith %}
+
+<div class="container">
+  <h1>Registrera nytt jobb</h1>
+
+  <form method="post" action="/add">
+    <label for="name">Namn *</label>
+    <input type="text" id="name" name="name" style="text-transform: capitalize;" required>
+
+    <label for="phone">Telefon</label>
+    <input type="text" id="phone" name="phone">
+
+    <label for="car_model">Bilmodell</label>
+    <input type="text" id="car_model" name="car_model" style="text-transform: capitalize;">
+
+    <label for="license_plate">Registreringsnummer *</label>
+    <input type="text" id="license_plate" name="license_plate" style="text-transform: uppercase;" required>
+
+    <label for="service">Tjänst *</label>
+    <input type="text" id="service" name="service" style="text-transform: capitalize;" required>
+
+    <label for="price">Pris (kr)</label>
+    <input type="number" step="0.01" id="price" name="price">
+
+    <button type="submit">Spara</button>
+  </form>
+
+  <a class="link" href="/jobs">Visa registrerade jobb</a>
 </div>
+
+<style>
+form {
+  max-width: 500px;
+  margin: auto;
+}
+label {
+  display: block;
+  margin-top: 15px;
+}
+input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  box-sizing: border-box;
+}
+button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #03a9f4;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+button:hover {
+  background-color: #0288d1;
+}
+.link {
+  display: block;
+  margin-top: 20px;
+  text-align: center;
+}
+.flash {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 10px;
+  margin: 15px auto;
+  max-width: 500px;
+  border-radius: 4px;
+  text-align: center;
+}
+</style>
 
 {% endblock %}
