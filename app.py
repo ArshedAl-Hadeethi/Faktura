@@ -147,7 +147,7 @@ def generate_job_list_pdf():
     pdf = canvas.Canvas(buffer, pagesize=A4)
     width, height = A4
     data = [["Datum", "Kund", "Reg.nr", "Tjänst", "Pris"]] + [
-        [job[7], job[1], job[4], job[5], f"{job[6]} kr" if job[6] else ""] for job in jobs
+        [job[7], job[1], job[4], job[5], f"{job[6]}" if job[6] else ""] for job in jobs
     ]
 
     table = Table(data, colWidths=[100]*5)
