@@ -27,11 +27,29 @@ def index():
 
 @app.route('/add', methods=['POST'])
 def add():
+    name = request.form.get('name', '').strip().capitalize()
+    phone = request.form.get('phone', '').strip()
+    car_model = request.form.get('car_model', '').strip().capitalize()
+    license_plate = request.form.get('license_plate', '').strip().upper()
+    service = request.form.get('service', '').strip().capitalize()
+    price = request.form.get('price', '').strip()
+
+    # Validera endast namn, regnr, och tjänst
+    if not name or not license_plate or not service:
+        flash("Namn, registreringsnummer och tjänst är obligatoriska.")
+        return redirect('/')
+
     data = (
-        request.form['name'], request.form['phone'], request.form['car_model'],
-        request.form['license_plate'], request.form['service'], request.form['price'],
-        datetime.now().strftime('%Y-%m-%d %H:%M'), 'Ej fakturerad'
+        name,
+        phone if phone else None,
+        car_model if car_model else None,
+        license_plate,
+        service,
+        float(price) if price else None,
+        datetime.now().strftime('%Y-%m-%d %H:%M'),
+        'Ej fakturerad'
     )
+
     conn = get_db()
     cur = conn.cursor()
     cur.execute("""
@@ -43,6 +61,7 @@ def add():
     conn.close()
     flash("Registreringen lyckades!")
     return redirect('/jobs')
+
 
 @app.route('/jobs')
 def jobs():
