@@ -3,154 +3,163 @@
 {% block title %}Registrerade jobb{% endblock %}
 
 {% block content %}
-
 {% with messages = get_flashed_messages() %}
   {% if messages %}
-    <div class="flash">
-        {{ messages[0] }}
-    </div>
+    <div class="flash">{{ messages[0] }}</div>
   {% endif %}
 {% endwith %}
 
 <div class="container">
-    <h1>Registrerade jobb</h1>
+  <h1>Registrerade jobb</h1>
 
-    <div class="print-btn-wrapper">
-  <a href="{{ url_for('generate_job_list_pdf', sort=sort, sort_field=sort_field) }}" class="btn-pdf">
-    🖨️ Skriv ut
-  </a>
+  <div class="print-btn-wrapper">
+    <a href="{{ url_for('generate_job_list_pdf', sort=sort, sort_field=sort_field) }}" class="btn-pdf">
+      🖨️ Skriv ut
+    </a>
+  </div>
+
+  <label for="sort">Sortera datum:</label>
+  <select name="sort" onchange="this.form.submit()">
+    <option value="desc" {% if sort == 'desc' %}selected{% endif %}>Nyast först</option>
+    <option value="asc" {% if sort == 'asc' %}selected{% endif %}>Äldst först</option>
+  </select>
+
+  <input type="text" id="liveSearch" placeholder="Sök kundnamn eller registreringsnummer..." style="width: 100%; padding: 10px; margin-bottom: 15px; font-size: 14px;">
+
+  <table>
+    <thead>
+      <tr>
+        <th>Datum</th>
+        <th>Kund</th>
+        <th>Telefon</th>
+        <th>Bil</th>
+        <th>Reg.nr</th>
+        <th>Tjänst</th>
+        <th>Pris</th>
+        <th>Status</th>
+        <th>Åtgärd</th>
+        <th>Radera</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for job in jobs %}
+      <tr id="row-{{ job[0] }}">
+        <td>{{ job[7] }}</td>
+        <td id="name-{{ job[0] }}">{{ job[1] }}</td>
+        <td id="phone-{{ job[0] }}">{{ job[2] }}</td>
+        <td id="car-{{ job[0] }}">{{ job[3] }}</td>
+        <td id="reg-{{ job[0] }}">{{ job[4] }}</td>
+        <td id="service-{{ job[0] }}">{{ job[5] }}</td>
+        <td id="price-{{ job[0] }}">{{ job[6] }}</td>
+        <td>
+          {% if job[8] == 'Fakturerad' %}
+            ✔ Fakturerad
+          {% else %}
+            ❌ Ej fakturerad
+          {% endif %}
+        </td>
+        <td>
+          <form method="post" action="/toggle_status/{{ job[0] }}" onsubmit="return confirmToggleStatus(this)" style="display:inline;">
+            <input type="hidden" name="pin">
+            <button type="submit" class="action-btn small">
+              {% if job[8] == 'Fakturerad' %}Ångra{% else %}Fakturera{% endif %}
+            </button>
+          </form>
+          <button class="edit-btn small" onclick="toggleEdit({{ job[0] }})">✏️ Redigera</button>
+        </td>
+        <td>
+          <form method="post" action="/delete/{{ job[0] }}" onsubmit="return confirmDelete(this)">
+            <input type="hidden" name="pin">
+            <button type="submit" class="danger small">🗑️</button>
+          </form>
+        </td>
+      </tr>
+
+      <!-- Redigeringsrad (dold som standard) -->
+      <tr id="edit-row-{{ job[0] }}" style="display: none; background-color: #f3f3f3;">
+        <form method="post" action="/edit/{{ job[0] }}">
+          <td></td>
+          <td><input type="text" name="customer_name" value="{{ job[1] }}"></td>
+          <td><input type="text" name="phone" value="{{ job[2] }}"></td>
+          <td><input type="text" name="car_model" value="{{ job[3] }}"></td>
+          <td><input type="text" name="license_plate" value="{{ job[4] }}"></td>
+          <td><input type="text" name="service" value="{{ job[5] }}"></td>
+          <td><input type="number" step="0.01" name="price" value="{{ job[6] }}"></td>
+          <td colspan="2">
+            <button type="submit" class="btn-save">💾 Spara</button>
+            <button type="button" onclick="toggleEdit({{ job[0] }})" class="btn-cancel">Avbryt</button>
+          </td>
+          <td></td>
+        </form>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <a class="link" href="/">Tillbaka</a>
 </div>
-
-    <label for="sort">Sortera datum:</label>
-        <select name="sort" onchange="this.form.submit()">
-            <option value="desc" {% if sort == 'desc' %}selected{% endif %}>Nyast först</option>
-            <option value="asc" {% if sort == 'asc' %}selected{% endif %}>Äldst först</option>
-        </select>
-
-    <input type="text" id="liveSearch" placeholder="Sök kundnamn eller registreringsnummer..." style="width: 100%; padding: 10px; margin-bottom: 15px; font-size: 14px;">
-
-    <form method="get" action="/jobs" class="search-form">
-        <input type="hidden" name="search" value="{{ search }}">
-
-        
-    </form>
-
-    
-
-
-    <table>
-        <thead>
-            <tr>
-                <th>
-                    <a href="{{ url_for('jobs', sort_field='date', sort='asc' if sort_field != 'date' or sort == 'desc' else 'desc', search=search) }}">
-                        Datum {% if sort_field == 'date' %}{{ '↑' if sort == 'asc' else '↓' }}{% endif %}
-                    </a>
-                </th>
-                <th>
-                    <a href="{{ url_for('jobs', sort_field='name', sort='asc' if sort_field != 'name' or sort == 'desc' else 'desc', search=search) }}">
-                        Kund {% if sort_field == 'name' %}{{ '↑' if sort == 'asc' else '↓' }}{% endif %}
-                    </a>
-                </th>
-                <th>Telefon</th>
-                <th>Bil</th>
-                <th>Reg.nr</th>
-                <th>Tjänst</th>
-                <th>Pris</th>
-                <th>Status</th>
-                <th>Åtgärd</th>
-                <th>Radera</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for job in jobs %}
-            <tr class="{% if job[8] == 'Fakturerad' %}fakturerad{% endif %}">
-                <td>{{ job[7] }}</td>
-                <td>{{ job[1] }}</td>
-                <td>{{ job[2] }}</td>
-                <td>{{ job[3] }}</td>
-                <td>{{ job[4] }}</td>
-                <td>{{ job[5] }}</td>
-                <td>{{ job[6] }}</td>
-                <td>
-                    {% if job[8] == 'Fakturerad' %}
-                        ✔ Fakturerad
-                    {% else %}
-                        ❌ Ej fakturerad
-                    {% endif %}
-                </td>
-                <td>
-                    <form method="post" action="/toggle_status/{{ job[0] }}" onsubmit="return confirmToggleStatus(this)">
-                        <input type="hidden" name="pin">
-                        <button type="submit" class="action-btn">
-                            {% if job[8] == 'Fakturerad' %}
-                                Ångra fakturering
-                            {% else %}
-                                Markera som fakturerad
-                            {% endif %}
-                        </button>
-                    </form>
-                </td>
-                <td>
-                    <form method="post" action="/delete/{{ job[0] }}" onsubmit="return confirmDelete(this)">
-                        <input type="hidden" name="pin">
-                        <button type="submit">🗑️ Ta bort</button>
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
-    <a class="link" href="/">Tillbaka</a>
-</div>
-
-<script>
-  setTimeout(function () {
-    var flash = document.querySelector('.flash');
-    if (flash) {
-      flash.style.transition = 'opacity 0.5s ease';
-      flash.style.opacity = '0';
-      setTimeout(function () {
-        flash.remove();
-      }, 500);
-    }
-  }, 3000);
-</script>
 
 <script>
 function confirmDelete(form) {
-    const pin = prompt("Ange PIN-kod för att radera:");
-    if (pin === null || pin.trim() === "") return false;
-    form.pin.value = pin;
-    return true;
+  const pin = prompt("Ange PIN-kod för att radera:");
+  if (pin === null || pin.trim() === "") return false;
+  form.pin.value = pin;
+  return true;
 }
-</script>
 
-<script>
+function confirmToggleStatus(form) {
+  const pin = prompt("Ange PIN-kod för att bekräfta:");
+  if (pin === null) return false;
+  form.pin.value = pin;
+  return true;
+}
+
+function toggleEdit(id) {
+  const editRow = document.getElementById("edit-row-" + id);
+  editRow.style.display = editRow.style.display === "none" ? "" : "none";
+}
+
 document.getElementById('liveSearch').addEventListener('input', function () {
-    const filter = this.value.toLowerCase();
-    const rows = document.querySelectorAll("table tbody tr");
-
-    rows.forEach(row => {
-        const name = row.cells[1]?.innerText.toLowerCase();
-        const reg = row.cells[4]?.innerText.toLowerCase();
-
-        if (name.includes(filter) || reg.includes(filter)) {
-            row.style.display = "";
-        } else {
-            row.style.display = "none";
-        }
-    });
+  const filter = this.value.toLowerCase();
+  const rows = document.querySelectorAll("table tbody tr:not([id^='edit-row'])");
+  rows.forEach(row => {
+    const name = row.cells[1]?.innerText.toLowerCase();
+    const reg = row.cells[4]?.innerText.toLowerCase();
+    if (name.includes(filter) || reg.includes(filter)) {
+      row.style.display = "";
+    } else {
+      row.style.display = "none";
+    }
+  });
 });
 </script>
 
-<script>
-function confirmToggleStatus(form) {
-    const pin = prompt("Ange PIN-kod för att bekräfta:");
-    if (pin === null) return false;
-    form.pin.value = pin;
-    return true;
+<style>
+.small {
+  font-size: 0.8rem;
+  padding: 5px 10px;
 }
-</script>
+.btn-save {
+  background-color: #4CAF50;
+  color: white;
+  padding: 5px 10px;
+}
+.btn-cancel {
+  background-color: #ccc;
+  padding: 5px 10px;
+}
+.edit-btn {
+  background-color: #03a9f4;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  margin-left: 5px;
+}
+.danger {
+  background-color: #f44336;
+  color: white;
+  padding: 5px 10px;
+}
+</style>
 
 {% endblock %}
