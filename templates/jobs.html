@@ -52,21 +52,24 @@
             ❌ Ej fakturerad
           {% endif %}
         </td>
-        <td>
-          <form method="post" action="/toggle_status/{{ job[0] }}" onsubmit="return confirmToggleStatus(this)" style="display:inline;">
-            <input type="hidden" name="pin">
-            <button type="submit" class="action-btn small">
-              {% if job[8] == 'Fakturerad' %}Ångra{% else %}Fakturera{% endif %}
-            </button>
-          </form>
-          <button class="edit-btn small" onclick="toggleEdit({{ job[0] }})">✏️ Redigera</button>
-        </td>
-        <td>
-          <form method="post" action="/delete/{{ job[0] }}" onsubmit="return confirmDelete(this)">
-            <input type="hidden" name="pin">
-            <button type="submit" class="danger small">🗑️</button>
-          </form>
-        </td>
+        <td colspan="2">
+  <div class="action-group">
+    <form method="post" action="/toggle_status/{{ job[0] }}" onsubmit="return confirmToggleStatus(this)">
+      <input type="hidden" name="pin">
+      <button type="submit" class="btn action">
+        {% if job[8] == 'Fakturerad' %}Ångra{% else %}Fakturera{% endif %}
+      </button>
+    </form>
+    
+    <button class="btn edit" onclick="toggleEdit({{ job[0] }})">✏️</button>
+
+    <form method="post" action="/delete/{{ job[0] }}" onsubmit="return confirmDelete(this)">
+      <input type="hidden" name="pin">
+      <button type="submit" class="btn delete">🗑️</button>
+    </form>
+  </div>
+</td>
+
       </tr>
 
       <!-- Redigeringsrad (dold som standard) -->
