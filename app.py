@@ -9,6 +9,10 @@ from io import BytesIO
 import os
 DB_URL = os.environ.get("DB_URL")
 
+import dropbox
+import csv
+
+
 
 app = Flask(__name__)
 app.secret_key = 'valfri-hemlig-nyckel'
@@ -27,6 +31,8 @@ def index():
 
 @app.route('/add', methods=['POST'])
 def add():
+    import dropbox  # säkerställ att importen finns i början av din fil eller här
+
     name = request.form.get('name', '').strip().capitalize()
     phone = request.form.get('phone', '').strip()
     car_model = request.form.get('car_model', '').strip().capitalize()
@@ -34,7 +40,7 @@ def add():
     service = request.form.get('service', '').strip().capitalize()
     price = request.form.get('price', '').strip()
 
-    # Validera endast namn, regnr, och tjänst
+    # Validera endast namn, regnr och tjänst
     if not name or not license_plate or not service:
         flash("Namn, registreringsnummer och tjänst är obligatoriska.")
         return redirect('/')
@@ -60,7 +66,31 @@ def add():
     cur.close()
     conn.close()
     flash("Registreringen lyckades!")
+
+    # === Dropbox-backup ===
+    DROPBOX_TOKEN = "DIN_TOKEN_HÄR"  # byt ut mot din token
+    dbx = dropbox.Dropbox(DROPBOX_TOKEN)
+
+    # Hämta alla icke-arkiverade jobb
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM jobs WHERE archived = 0")
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    # Skapa CSV-data
+    csv_data = "id,namn,telefon,bil,regnr,tjänst,pris,datum,status\n"
+    for row in rows:
+        row = [str(field) if field is not None else "" for field in row]
+        csv_data += ",".join(row) + "\n"
+
+    # Ladda upp till Dropbox
+    dbx.files_upload(csv_data.encode('utf-8'), '/backup_registrerade_job.csv', mode=dropbox.files.WriteMode.overwrite)
+
     return redirect('/jobs')
+
+
 
 
 @app.route('/jobs')
