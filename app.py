@@ -34,6 +34,11 @@ from datetime import datetime
 import os
 import dropbox  # glöm inte importen
 
+from flask import request, redirect, flash
+from datetime import datetime
+import dropbox
+import os
+
 @app.route('/add', methods=['POST'])
 def add():
     name = request.form.get('name', '').strip().capitalize()
@@ -59,7 +64,7 @@ def add():
         'Ej fakturerad'
     )
 
-    # Lägg till jobbet i databasen
+    # Spara till databas
     conn = get_db()
     cur = conn.cursor()
     cur.execute("""
@@ -74,7 +79,7 @@ def add():
 
     # === Dropbox-backup ===
     try:
-        DROPBOX_TOKEN = os.environ.get("DROPBOX_TOKEN")
+        DROPBOX_TOKEN = os.environ.get('DROPBOX_TOKEN')  # sätts i Render > Environment
         if not DROPBOX_TOKEN:
             raise Exception("Dropbox-token saknas!")
 
@@ -101,9 +106,10 @@ def add():
         )
 
     except Exception as e:
-        print("Fel vid Dropbox-backup:", str(e))  # visas i Render-loggar
+        print("Fel vid Dropbox-backup:", str(e))  # Visas i Render-loggar
 
     return redirect('/jobs')
+
 
 
 @app.route('/jobs')
