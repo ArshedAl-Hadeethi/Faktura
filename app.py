@@ -29,10 +29,13 @@ def get_db():
 def index():
     return render_template('index.html')
 
+from flask import Flask, request, redirect, flash
+from datetime import datetime
+import os
+import dropbox  # glöm inte importen
+
 @app.route('/add', methods=['POST'])
 def add():
-    import dropbox  # säkerställ att importen finns i början av din fil eller här
-
     name = request.form.get('name', '').strip().capitalize()
     phone = request.form.get('phone', '').strip()
     car_model = request.form.get('car_model', '').strip().capitalize()
@@ -40,7 +43,7 @@ def add():
     service = request.form.get('service', '').strip().capitalize()
     price = request.form.get('price', '').strip()
 
-    # Validera endast namn, regnr och tjänst
+    # Validera endast namn, regnr, och tjänst
     if not name or not license_plate or not service:
         flash("Namn, registreringsnummer och tjänst är obligatoriska.")
         return redirect('/')
@@ -56,6 +59,7 @@ def add():
         'Ej fakturerad'
     )
 
+    # Lägg till jobbet i databasen
     conn = get_db()
     cur = conn.cursor()
     cur.execute("""
@@ -65,13 +69,41 @@ def add():
     conn.commit()
     cur.close()
     conn.close()
+
     flash("Registreringen lyckades!")
 
-    
+    # === Dropbox-backup ===
+    try:
+        DROPBOX_TOKEN = os.environ.get("DROPBOX_TOKEN")
+        if not DROPBOX_TOKEN:
+            raise Exception("Dropbox-token saknas!")
+
+        dbx = dropbox.Dropbox(DROPBOX_TOKEN)
+
+        # Hämta alla aktiva jobb
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM jobs WHERE archived = 0")
+        rows = cur.fetchall()
+        cur.close()
+        conn.close()
+
+        # Skapa CSV-data
+        csv_data = "id,namn,telefon,bil,regnr,tjänst,pris,datum,status\n"
+        for row in rows:
+            csv_data += ",".join([str(f) if f is not None else "" for f in row]) + "\n"
+
+        # Ladda upp till Dropbox
+        dbx.files_upload(
+            csv_data.encode('utf-8'),
+            '/backup_registrerade_job.csv',
+            mode=dropbox.files.WriteMode.overwrite
+        )
+
+    except Exception as e:
+        print("Fel vid Dropbox-backup:", str(e))  # visas i Render-loggar
 
     return redirect('/jobs')
-
-
 
 
 @app.route('/jobs')
