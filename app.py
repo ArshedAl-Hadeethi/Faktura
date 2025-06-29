@@ -51,7 +51,7 @@ def add():
     # Validera endast namn, regnr, och tjänst
     if not name or not license_plate or not service:
         flash("Namn, registreringsnummer och tjänst är obligatoriska.")
-        print("Försöker köra Dropbox-backup...")
+        
 
         return redirect('/')
 
@@ -78,6 +78,7 @@ def add():
     conn.close()
 
     flash("Registreringen lyckades!")
+    print("Försöker köra Dropbox-backup...")
 
     # === Dropbox-backup ===
     try:
