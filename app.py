@@ -237,6 +237,21 @@ def edit(job_id):
     flash("Jobbet har uppdaterats!")
     return redirect('/jobs')
 
+@app.route('/delete_selected', methods=['POST'])
+def delete_selected():
+    ids = request.form.getlist('delete_ids')
+    if ids:
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute("DELETE FROM jobs WHERE id = ANY(%s)", (ids,))
+        conn.commit()
+        cur.close()
+        conn.close()
+        flash(f"{len(ids)} jobb raderades permanent.")
+    else:
+        flash("Inga jobb markerades för radering.")
+    return redirect('/archived')
+
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))

@@ -5,44 +5,56 @@
 {% block content %}
 <div class="container">
     <h1>Arkiverade jobb</h1>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="flash">{{ messages[0] }}</div>
+      {% endif %}
+    {% endwith %}
+
     <input type="text" id="liveSearch" placeholder="Sök kundnamn eller registreringsnummer..." style="width: 100%; padding: 10px; margin-bottom: 15px; font-size: 14px;">
 
-    <table>
-        <thead>
-            <tr>
-                <th>Datum</th>
-                <th>Kund</th>
-                <th>Telefon</th>
-                <th>Bil</th>
-                <th>Reg.nr</th>
-                <th>Tjänst</th>
-                <th>Pris</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for job in jobs %}
-            <tr>
-                <td>{{ job[7] }}</td>
-                <td>{{ job[1] }}</td>
-                <td>{{ job[2] }}</td>
-                <td>{{ job[3] }}</td>
-                <td>{{ job[4] }}</td>
-                <td>{{ job[5] }}</td>
-                <td>{{ job[6] }}</td>
-                <td>
-                    {% if job[8] == 'Fakturerad' %}
-                        ✔ Fakturerad
-                    {% else %}
-                        ❌ Ej fakturerad
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <form method="POST" action="/delete_selected">
+        <table>
+            <thead>
+                <tr>
+                    <th>Välj</th>
+                    <th>Datum</th>
+                    <th>Kund</th>
+                    <th>Telefon</th>
+                    <th>Bil</th>
+                    <th>Reg.nr</th>
+                    <th>Tjänst</th>
+                    <th>Pris</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for job in jobs %}
+                <tr>
+                    <td><input type="checkbox" name="delete_ids" value="{{ job[0] }}"></td>
+                    <td>{{ job[7] }}</td>
+                    <td>{{ job[1] }}</td>
+                    <td>{{ job[2] }}</td>
+                    <td>{{ job[3] }}</td>
+                    <td>{{ job[4] }}</td>
+                    <td>{{ job[5] }}</td>
+                    <td>{{ job[6] }}</td>
+                    <td>
+                        {% if job[8] == 'Fakturerad' %}
+                            ✔ Fakturerad
+                        {% else %}
+                            ❌ Ej fakturerad
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button type="submit" class="btn delete" style="margin-top: 10px;">🗑️ Radera markerade</button>
+    </form>
 
-    <a class="link" href="/">Tillbaka till startsidan</a>
+    <a class="link" href="/">← Tillbaka till startsidan</a>
 </div>
 
 <script>
@@ -51,9 +63,8 @@ document.getElementById('liveSearch').addEventListener('input', function () {
     const rows = document.querySelectorAll("table tbody tr");
 
     rows.forEach(row => {
-        const name = row.cells[1]?.innerText.toLowerCase();
-        const reg = row.cells[4]?.innerText.toLowerCase();
-
+        const name = row.cells[2]?.innerText.toLowerCase(); // justerat pga ny kolumn i början
+        const reg = row.cells[5]?.innerText.toLowerCase();
         if (name.includes(filter) || reg.includes(filter)) {
             row.style.display = "";
         } else {
