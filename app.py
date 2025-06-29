@@ -59,7 +59,7 @@ def add():
     data = (
         name,
         phone if phone else None,
-        car_model if car_model else None,
+        car_model or '',
         license_plate,
         service,
         price if price else None,
