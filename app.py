@@ -217,25 +217,30 @@ def generate_job_list_pdf():
 
 @app.route('/edit/<int:job_id>', methods=['POST'])
 def edit(job_id):
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute("""
-        UPDATE jobs SET customer_name = %s, phone = %s, car_model = %s,
-        license_plate = %s, service = %s, price = %s WHERE id = %s
-    """, (
-        request.form['customer_name'],
-        request.form['phone'],
-        request.form['car_model'],
-        request.form['license_plate'],
-        request.form['service'],
-        request.form['price'],
-        job_id
-    ))
-    conn.commit()
-    cur.close()
-    conn.close()
-    flash("Jobbet har uppdaterats!")
+    try:
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute("""
+            UPDATE jobs SET customer_name = %s, phone = %s, car_model = %s,
+            license_plate = %s, service = %s, price = %s WHERE id = %s
+        """, (
+            request.form['customer_name'].strip() or None,
+            request.form['phone'].strip() or None,
+            request.form['car_model'].strip() or None,
+            request.form['license_plate'].strip().upper() or None,
+            request.form['service'].strip() or None,
+            float(request.form['price']) if request.form['price'].strip() else None,
+            job_id
+        ))
+        conn.commit()
+        cur.close()
+        conn.close()
+        flash("Jobbet har uppdaterats!")
+    except Exception as e:
+        print("Fel vid uppdatering:", str(e))  # Render-loggar
+        flash("Ett fel inträffade vid uppdatering.")
     return redirect('/jobs')
+
 
 @app.route('/delete_selected', methods=['POST'])
 def delete_selected():
