@@ -46,7 +46,8 @@ def add():
     car_model = request.form.get('car_model', '').strip().capitalize()
     license_plate = request.form.get('license_plate', '').strip().upper()
     service = request.form.get('service', '').strip().capitalize()
-    price = request.form.get('price', '').strip()
+    price = request.form.get('price', '').strip().upper()
+
 
     # Validera endast namn, regnr, och tjänst
     if not name or not license_plate or not service:
@@ -61,8 +62,7 @@ def add():
         car_model if car_model else None,
         license_plate,
         service,
-        float(price) if price else None,
-        datetime.now().strftime('%Y-%m-%d %H:%M'),
+        price if price else None,
         'Ej fakturerad'
     )
 
