@@ -63,6 +63,7 @@ def add():
         license_plate,
         service,
         price if price else None,
+        datetime.now().strftime('%Y-%m-%d %H:%M'),
         'Ej fakturerad'
     )
 
