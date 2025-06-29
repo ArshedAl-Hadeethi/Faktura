@@ -129,7 +129,7 @@
 <script>
 function confirmDelete(form) {
   const pin = prompt("Ange PIN-kod för att radera:");
-  if (pin === null || pin.trim() === "") return false;
+  if (pin === null) return false;
   form.pin.value = pin;
   return true;
 }
