@@ -23,8 +23,24 @@
   <table>
     <thead>
       <tr>
-        <th><a href="{{ url_for('jobs', sort_field='date', sort='asc' if sort_field != 'date' or sort == 'desc' else 'desc') }}">Datum</a></th>
-        <th><a href="{{ url_for('jobs', sort_field='name', sort='asc' if sort_field != 'name' or sort == 'desc' else 'desc') }}">Kund</a></th>
+        <th>
+    <a href="{{ url_for('jobs', sort_field='date', sort='asc' if sort_field != 'date' or sort == 'desc' else 'desc') }}">
+        Datum
+        {% if sort_field == 'date' %}
+            {% if sort == 'asc' %}▲{% else %}▼{% endif %}
+        {% endif %}
+    </a>
+</th>
+
+<th>
+    <a href="{{ url_for('jobs', sort_field='name', sort='asc' if sort_field != 'name' or sort == 'desc' else 'desc') }}">
+        Kund
+        {% if sort_field == 'name' %}
+            {% if sort == 'asc' %}▲{% else %}▼{% endif %}
+        {% endif %}
+    </a>
+</th>
+
         <th>Telefon</th>
         <th>Bil</th>
         <th>Reg.nr</th>
@@ -35,14 +51,6 @@
         <th>Radera</th>
       </tr>
     </thead>
-    <th>
-    <a href="{{ url_for('jobs', sort_field='date', sort='asc' if sort_field != 'date' or sort == 'desc' else 'desc') }}">
-        Datum
-        {% if sort_field == 'date' %}
-            {% if sort == 'asc' %}▲{% else %}▼{% endif %}
-        {% endif %}
-    </a>
-</th>
     <tbody>
       {% for job in jobs %}
       <tr id="row-{{ job[0] }}">
