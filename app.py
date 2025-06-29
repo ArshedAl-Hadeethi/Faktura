@@ -63,7 +63,7 @@ def add():
         service,
         float(price) if price else None,
         datetime.now().strftime('%Y-%m-%d %H:%M'),
-        'Ej fakturerad' 0
+        'Ej fakturerad'
     )
 
     # Spara till databas
