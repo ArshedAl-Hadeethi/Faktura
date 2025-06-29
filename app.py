@@ -140,7 +140,7 @@ def jobs():
 def delete(job_id):
     pin = request.form.get('pin')
     if pin != "1234":
-        flash("Fel kod")
+        flash("Fel PIN-kod.")
         return redirect('/jobs')
     conn = get_db()
     cur = conn.cursor()
