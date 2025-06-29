@@ -224,26 +224,44 @@ def generate_job_list_pdf():
 @app.route('/edit/<int:job_id>', methods=['POST'])
 def edit(job_id):
     try:
+        # Hämta fält från formuläret
+        name = request.form['customer_name'].strip()
+        phone = request.form['phone'].strip()
+        car_model = request.form['car_model'].strip()
+        license_plate = request.form['license_plate'].strip()
+        service = request.form['service'].strip()
+        price = request.form['price'].strip()
+
+        # Kontrollera att obligatoriska fält inte är tomma
+        if not name or not license_plate or not service:
+            flash("Namn, registreringsnummer och tjänst får inte vara tomma.")
+            return redirect('/jobs')
+
+        # Förbered värden för databasen
+        data = (
+            name.capitalize(),
+            phone if phone else None,
+            car_model.capitalize() if car_model else None,
+            license_plate.upper(),
+            service.capitalize(),
+            float(price) if price else None,
+            job_id
+        )
+
+        # Uppdatera i databasen
         conn = get_db()
         cur = conn.cursor()
         cur.execute("""
             UPDATE jobs SET customer_name = %s, phone = %s, car_model = %s,
             license_plate = %s, service = %s, price = %s WHERE id = %s
-        """, (
-            request.form['customer_name'].strip() or None,
-            request.form['phone'].strip() or None,
-            request.form['car_model'].strip() or None,
-            request.form['license_plate'].strip().upper() or None,
-            request.form['service'].strip() or None,
-            float(request.form['price']) if request.form['price'].strip() else None,
-            job_id
-        ))
+        """, data)
         conn.commit()
         cur.close()
         conn.close()
+
         flash("Jobbet har uppdaterats!")
     except Exception as e:
-        print("Fel vid uppdatering:", str(e))  # Render-loggar
+        print("Fel vid uppdatering:", str(e))
         flash("Ett fel inträffade vid uppdatering.")
     return redirect('/jobs')
 
