@@ -59,7 +59,7 @@
         <td id="phone-{{ job[0] }}">{{ job[2] }}</td>
         <td id="car-{{ job[0] }}">{{ job[3] }}</td>
         <td id="reg-{{ job[0] }}">{{ job[4] }}</td>
-        <td id="service-{{ job[0] }}">{{ job[5] }}</td>
+        <td id="service-{{ job[0] }}">{{ job[5]|upper }}</td>
         <td id="price-{{ job[0] }}">{{ job[6] }}</td>
         <td>
           {% if job[8] == 'Fakturerad' %}
