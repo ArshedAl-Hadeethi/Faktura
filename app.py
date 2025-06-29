@@ -245,7 +245,7 @@ def edit(job_id):
             car_model.capitalize() if car_model else None,
             license_plate.upper(),
             service.capitalize(),
-            float(price) if price else None,
+            price if price else None,
             job_id
         )
 
