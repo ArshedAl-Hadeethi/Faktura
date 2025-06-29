@@ -239,18 +239,27 @@ def edit(job_id):
 
 @app.route('/delete_selected', methods=['POST'])
 def delete_selected():
-    ids = request.form.getlist('delete_ids')
-    if ids:
+    try:
+        ids = request.form.getlist('delete_ids')
+
+        if not ids:
+            flash("Inga jobb markerades för radering.")
+            return redirect('/archived')
+
         conn = get_db()
         cur = conn.cursor()
-        cur.execute("DELETE FROM jobs WHERE id = ANY(%s)", (ids,))
+        cur.execute("DELETE FROM jobs WHERE id IN %s", (tuple(ids),))  # använd tuple här!
         conn.commit()
         cur.close()
         conn.close()
+
         flash(f"{len(ids)} jobb raderades permanent.")
-    else:
-        flash("Inga jobb markerades för radering.")
-    return redirect('/archived')
+        return redirect('/archived')
+    
+    except Exception as e:
+        print("Fel vid radering:", str(e))  # Visas i Render-loggen
+        flash("Ett fel inträffade vid radering.")
+        return redirect('/archived')
 
 
 if __name__ == '__main__':
