@@ -58,11 +58,11 @@ def add():
 
     data = (
         name,
-        phone if phone else None,
+        phone or '',
         car_model or '',
         license_plate,
         service,
-        price if price else None,
+        price or '',
         datetime.now().strftime('%Y-%m-%d %H:%M'),
         'Ej fakturerad'
     )
@@ -241,11 +241,11 @@ def edit(job_id):
         # Förbered värden för databasen
         data = (
             name.capitalize(),
-            phone if phone else None,
-            car_model.capitalize() if car_model else None,
+            phone or '',
+            car_model.capitalize() or '',
             license_plate.upper(),
             service.capitalize(),
-            price if price else None,
+            price or '',
             job_id
         )
 
