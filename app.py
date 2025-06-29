@@ -51,6 +51,8 @@ def add():
     # Validera endast namn, regnr, och tjänst
     if not name or not license_plate or not service:
         flash("Namn, registreringsnummer och tjänst är obligatoriska.")
+        print("Försöker köra Dropbox-backup...")
+
         return redirect('/')
 
     data = (
@@ -61,7 +63,7 @@ def add():
         service,
         float(price) if price else None,
         datetime.now().strftime('%Y-%m-%d %H:%M'),
-        'Ej fakturerad'
+        'Ej fakturerad' 0
     )
 
     # Spara till databas
@@ -104,6 +106,9 @@ def add():
             '/backup_registrerade_job.csv',
             mode=dropbox.files.WriteMode.overwrite
         )
+
+        print("✅ Backup till Dropbox klar.")
+        flash("Backup till Dropbox lyckades.")
 
     except Exception as e:
         print("Fel vid Dropbox-backup:", str(e))  # Visas i Render-loggar
