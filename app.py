@@ -82,9 +82,8 @@ def add():
     print("Försöker köra Dropbox-backup...")
 
     # === Dropbox-backup ===
-    print("Försöker köra Dropbox-backup...")
     try:
-        DROPBOX_TOKEN = os.environ.get('DROPBOX_TOKEN')
+        DROPBOX_TOKEN = os.environ.get('DROPBOX_TOKEN')  # sätts i Render > Environment
         if not DROPBOX_TOKEN:
             raise Exception("Dropbox-token saknas!")
 
@@ -114,7 +113,7 @@ def add():
         flash("Backup till Dropbox lyckades.")
 
     except Exception as e:
-        print("❌ Fel vid Dropbox-backup:", str(e))
+        print("Fel vid Dropbox-backup:", str(e))  # Visas i Render-loggar
 
     return redirect('/jobs')
 
