@@ -26,8 +26,8 @@ def get_db():
     return psycopg2.connect(DB_URL)
     
     @app.route("/health")
-def health():
-    return "OK", 200
+    def health():
+        return "OK", 200
 
 @app.route('/')
 def index():
