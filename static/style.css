@@ -268,22 +268,46 @@ td {
 }
 
 @media (max-width: 600px) {
+    main {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 10px;
+    }
+
     .top-links {
         position: static;
-        width: 100%;
-        max-width: 340px;
-        margin: 20px auto;
-        padding: 20px;
+        width: 120px;
+        padding: 15px 10px;
+        margin: 20px 0 0 0;
+        gap: 12px;
+        flex-shrink: 0;
     }
 
     .top-links a {
         width: 100%;
+        padding: 10px 6px;
+        font-size: 12px;
         text-align: center;
+        box-sizing: border-box;
     }
 
     .form-container {
-        width: 100%;
+        width: calc(100% - 140px);
         max-width: 340px;
-        margin: 20px auto;
+        margin: 0;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+
+    input, button {
+        font-size: 12px;
+        padding: 9px;
+    }
+
+    h1 {
+        font-size: 16px;
     }
 }
