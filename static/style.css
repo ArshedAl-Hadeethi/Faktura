@@ -166,9 +166,6 @@ td {
 }
 
 .top-links {
-    position: absolute;
-    top: 200px;
-    left: 200px;
     background-color: white;
     border-radius: 10px;
     padding: 30px 40px;
@@ -176,6 +173,8 @@ td {
     display: flex;
     flex-direction: column;
     gap: 28px;
+    width: 180px;
+    margin: 30px auto;
 }
 
 .top-links a {
@@ -268,3 +267,23 @@ td {
   text-align: center;
 }
 
+@media (max-width: 600px) {
+    .top-links {
+        position: static;
+        width: 100%;
+        max-width: 340px;
+        margin: 20px auto;
+        padding: 20px;
+    }
+
+    .top-links a {
+        width: 100%;
+        text-align: center;
+    }
+
+    .form-container {
+        width: 100%;
+        max-width: 340px;
+        margin: 20px auto;
+    }
+}
