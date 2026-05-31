@@ -166,6 +166,9 @@ td {
 }
 
 .top-links {
+    position: absolute;
+    top: 200px;
+    left: 200px;
     background-color: white;
     border-radius: 10px;
     padding: 30px 40px;
@@ -173,8 +176,6 @@ td {
     display: flex;
     flex-direction: column;
     gap: 28px;
-    width: 180px;
-    margin: 30px auto;
 }
 
 .top-links a {
