@@ -311,3 +311,52 @@ td {
         font-size: 16px;
     }
 }
+
+@media (max-width: 600px) {
+    main {
+        display: grid !important;
+        grid-template-columns: 120px 1fr !important;
+        gap: 10px !important;
+        align-items: start !important;
+        padding: 10px !important;
+    }
+
+    .top-links {
+        grid-column: 1 !important;
+        grid-row: 1 !important;
+        position: static !important;
+        width: 120px !important;
+        margin: 0 !important;
+        padding: 12px 8px !important;
+        gap: 12px !important;
+        box-sizing: border-box !important;
+    }
+
+    .top-links a {
+        width: 100% !important;
+        font-size: 12px !important;
+        padding: 10px 5px !important;
+        text-align: center !important;
+        box-sizing: border-box !important;
+    }
+
+    .form-container {
+        grid-column: 2 !important;
+        grid-row: 1 !important;
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 18px !important;
+        box-sizing: border-box !important;
+    }
+
+    .form-container input,
+    .form-container button {
+        font-size: 12px !important;
+        padding: 8px !important;
+    }
+
+    .form-container h1 {
+        font-size: 16px !important;
+    }
+}
