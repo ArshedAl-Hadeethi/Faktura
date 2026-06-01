@@ -288,3 +288,35 @@ td {
 th, td {
     padding: 8px 10px;
 }
+
+.container {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    table-layout: auto;
+}
+
+.action-group {
+    display: flex;
+    gap: 6px;
+    justify-content: flex-end;
+    align-items: center;
+    white-space: nowrap;
+}
+
+.btn.action {
+    min-width: 110px;
+}
+
+.btn.edit,
+.btn.delete {
+    min-width: 55px;
+    width: 55px;
+}
+
+th:last-child,
+td:last-child {
+    padding-right: 20px;
+}
