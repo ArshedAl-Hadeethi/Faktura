@@ -267,3 +267,24 @@ td {
 .container {
     overflow-x: auto;
 }
+
+.action-group {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+}
+
+.action-group form {
+    margin: 0;
+}
+
+.action-group .btn {
+    margin: 0;
+}
+
+th, td {
+    padding: 8px 10px;
+}
