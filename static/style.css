@@ -202,3 +202,48 @@ td {
     background-color: #0000a1;
 }
 
+/* === Knappar bredvid varandra i jobs.html === */
+.action-group {
+    display: flex;
+    flex-direction: row;
+    gap: 6px;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    white-space: nowrap;
+}
+
+.action-group form {
+    display: inline-block;
+    margin: 0;
+}
+
+.action-group button {
+    display: inline-block;
+    margin: 0;
+}
+
+.btn {
+    border: none;
+    border-radius: 9px;
+    cursor: pointer;
+    font-weight: bold;
+    color: white;
+    padding: 8px 12px;
+    width: auto;
+}
+
+.btn.action {
+    background-color: #008CBA;
+    min-width: 140px;
+}
+
+.btn.edit {
+    background-color: #2cac6a;
+    min-width: 70px;
+}
+
+.btn.delete {
+    background-color: #2cac6a;
+    min-width: 90px;
+}
